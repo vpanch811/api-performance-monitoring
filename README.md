@@ -159,3 +159,47 @@ The performance monitoring system now provides:
 15. Automated multi-level load testing
 
 The automated load-testing workflow makes it possible to repeatedly test API performance under increasing levels of concurrent traffic and quickly determine whether the API meets the defined performance requirements.
+
+## Performance Regression Detection
+
+The project includes a performance regression detection feature
+that compares the latest performance report with the most recent
+earlier report for the same URL.
+
+It detects whether the average response time has increased beyond
+a configurable percentage threshold.
+
+### Endpoint
+
+`GET /performance-regression`
+
+### Default Usage
+
+Send a GET request to:
+
+`http://127.0.0.1:8000/performance-regression`
+
+By default, the regression threshold is 50%.
+
+### Custom Threshold
+
+You can specify a custom threshold using a query parameter:
+
+`http://127.0.0.1:8000/performance-regression?regression_threshold_percent=30`
+
+For example, a threshold of 30 means a regression is detected when
+the average response time increases by more than 30% compared with
+the baseline report.
+
+### Example Response
+
+```json
+{
+  "url": "https://example.com/api",
+  "baseline_response_time_ms": 100.0,
+  "latest_response_time_ms": 180.0,
+  "response_time_change_percent": 80.0,
+  "regression_threshold_percent": 50.0,
+  "regression_detected": true,
+  "message": "Potential performance regression detected"
+}

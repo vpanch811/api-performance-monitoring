@@ -436,3 +436,28 @@ def test_multiple_performance_history():
     finally:
         server.shutdown()
         clear_performance_history()
+
+def test_performance_regression_endpoint():
+    response = client.get("/performance-regression")
+
+    assert response.status_code == 200
+    assert "regression_detected" in response.json()
+
+
+def test_performance_regression_custom_threshold():
+    response = client.get(
+        "/performance-regression",
+        params={"regression_threshold_percent": 30},
+    )
+
+    assert response.status_code == 200
+    assert "regression_detected" in response.json()
+
+
+def test_performance_regression_negative_threshold():
+    response = client.get(
+        "/performance-regression",
+        params={"regression_threshold_percent": -10},
+    )
+
+    assert response.status_code == 422

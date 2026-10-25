@@ -18,7 +18,9 @@ from app.performance.history import (
     get_performance_history,
     get_performance_summary,
     get_load_level_comparison,
+    detect_performance_regression,
 )
+
 from app.database import initialize_database, save_report, get_saved_reports
 
 app = FastAPI(
@@ -213,3 +215,17 @@ async def performance_comparison():
         "total_tests": len(get_load_level_comparison()),
         "tests": get_load_level_comparison()
     }
+
+@app.get("/performance-regression")
+def performance_regression(
+    regression_threshold_percent: float = 50.0,
+    ):
+    if regression_threshold_percent < 0:
+        raise HTTPException(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        detail="Regression threshold cannot be negative",
+        )
+
+    return detect_performance_regression(
+        regression_threshold_percent=regression_threshold_percent
+    )
