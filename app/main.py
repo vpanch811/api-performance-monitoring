@@ -19,13 +19,14 @@ from app.performance.history import (
     get_performance_summary,
     get_load_level_comparison,
 )
+from app.database import initialize_database, save_report, get_saved_reports
 
 app = FastAPI(
     title="API Performance Monitoring System",
     description="REST API for performance testing and deployment monitoring",
     version="1.0.0"
 )
-
+initialize_database()
 
 class UserCreate(BaseModel):
     name: str
@@ -186,21 +187,20 @@ async def performance_test(
             request.number_of_requests
         )
 
-    report = generate_performance_report(
-        performance_result
-    )
-
-    add_performance_report(
-        report
-    )
-
+    report = generate_performance_report(performance_result)
+    add_performance_report(report)
     return report
 
 @app.get("/performance-history")
-async def performance_history():
+def performance_history():
+    reports = get_saved_reports()
+
     return {
-        "total_tests": len(get_performance_history()),
-        "tests": get_performance_history()
+        "total_tests": len(reports),
+        "tests": [
+            {"report": report}
+            for report in reports
+        ],
     }
 
 @app.get("/performance-summary")
